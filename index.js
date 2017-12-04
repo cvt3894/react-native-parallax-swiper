@@ -93,14 +93,15 @@ class ParallaxSwiper extends Component {
       animatedScrollValue,
       shouldRasterizeIOS,
       renderToHardwareTextureAndroid,
+      width,
+      height
     } = this.props;
-
     return (
       <View pointerEvents="box-none" style={styles.container}>
         <Animated.ScrollView
           ref="animatedScrollView"
           scrollEnabled={this.props.scrollEnabled}
-          style={{ width: vertical ? deviceWidth : deviceWidth + dividerWidth, backgroundColor }}
+          style={{ width: vertical ? width : width + dividerWidth, backgroundColor }}
           horizontal={!vertical}
           pagingEnabled
           scrollEventThrottle={1}
@@ -124,7 +125,7 @@ class ParallaxSwiper extends Component {
 
             return (
               <View key={i} style={{ zIndex: -i, flexDirection: 'row' }}>
-                <View style={styles.slideInnerContainer}>
+                <View style={[styles.slideInnerContainer, { width, height: child.props.viewHeight || height }]}>
                   {child.props.backgroundImage &&
                     <Animated.View
                       shouldRasterizeIOS={shouldRasterizeIOS}
@@ -132,26 +133,26 @@ class ParallaxSwiper extends Component {
                       style={[
                         {
                           position: 'absolute',
-                          width: deviceWidth,
-                          height: deviceHeight,
+                          width,
+                          height,
                         },
                         this.getParallaxStyles(i),
                       ]}
                     >
                       <Image
-                        style={[styles.backgroundImage, { resizeMode: backgroundImageResizeMode }]}
-                        source={{ uri: child.props.backgroundImage }}
+                        style={[styles.backgroundImage, { resizeMode: backgroundImageResizeMode, width, height: child.props.viewHeight || height }]}
+                        source={child.props.backgroundImage}
                       />
                     </Animated.View>}
                   {child.props.backgroundImage &&
-                    <View pointerEvents="box-none" style={styles.uiContainer}>
+                    <View pointerEvents="box-none" style={[styles.uiContainer, { width, height: child.props.viewHeight || height }]}>
                       {child}
                     </View>}
                   {!child.props.backgroundImage &&
                     <Animated.View
                       shouldRasterizeIOS={shouldRasterizeIOS}
                       renderToHardwareTextureAndroid={renderToHardwareTextureAndroid}
-                      style={[styles.uiContainer, this.getParallaxStyles(i)]}
+                      style={[styles.uiContainer, this.getParallaxStyles(i), { width, height: child.props.viewHeight || height }]}
                     >
                       {child}
                     </Animated.View>}
@@ -159,8 +160,8 @@ class ParallaxSwiper extends Component {
                 {!vertical &&
                   <View
                     style={{
-                      width: dividerWidth,
-                      height: deviceHeight,
+                      width,
+                      height: child.props.viewHeight || height,
                       backgroundColor: dividerBackgroundColor,
                     }}
                   />}
@@ -197,6 +198,8 @@ ParallaxSwiper.propTypes = {
   backgroundColor: PropTypes.string,
   dividerColor: PropTypes.string,
   dividerWidth: PropTypes.number,
+  width: PropTypes.number,
+  height: PropTypes.number,
   parallaxStrength: PropTypes.number,
   showsHorizontalScrollIndicator: PropTypes.bool,
   onMomentumScrollEnd: PropTypes.func,
@@ -204,7 +207,6 @@ ParallaxSwiper.propTypes = {
   backgroundImageResizeMode: PropTypes.string,
   vertical: PropTypes.bool,
   showsVerticalScrollIndicator: PropTypes.bool,
-  backgroundImage: PropTypes.string,
   shouldRasterizeIOS: PropTypes.bool,
   renderToHardwareTextureAndroid: PropTypes.bool,
 };
@@ -213,6 +215,8 @@ ParallaxSwiper.defaultProps = {
   backgroundColor: 'black',
   dividerColor: 'black',
   dividerWidth: 8,
+  width: deviceWidth,
+  height: deviceHeight,
   parallaxStrength: 80,
   showsHorizontalScrollIndicator: false,
   backgroundImageResizeMode: 'cover',
